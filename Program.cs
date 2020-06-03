@@ -1,269 +1,245 @@
-﻿
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-
 using CsvHelper;
 
 namespace Bank
 {
+
+    class Transaction
+    {
+        public string Type { get; set; }
+        public string Account { get; set; }
+        public decimal Amount { get; set; }
+    }
     class Program
     {
+        private static decimal TotalAccountBalance(List<Transaction> transactions, string account, string Account)
+        {
+            var Deposits = transactions.Where(transaction => transaction.Account == account && transaction.Type == "Deposit");
+            var TotalDeposits = Deposits.Sum(transaction => transaction.Amount);
 
-        class checkingaccount
-        {
-            public int checking { get; set; }
+            var Withdraws = transactions.Where(transaction => transaction.Account == account && transaction.Type == "Withdraw");
+            var TotalWithdraws = Withdraws.Sum(transaction => transaction.Amount);
+
+            var balance = TotalDeposits - TotalWithdraws;
+
+            return balance;
         }
-        class savingsaccount
+        static decimal AskForAmount(string prompt)
         {
-            public int savings { get; set; }
+            decimal result = 0.00m;
+            bool positiveNumber = false;
+
+            while (!positiveNumber)
+            {
+                Console.WriteLine(prompt);
+
+                positiveNumber = decimal.TryParse(Console.ReadLine(), out result);
+
+                // Invalid input: not a number
+                if (!positiveNumber)
+                {
+                    Console.WriteLine("Invalid input! Not a number.");
+                }
+
+                // Invalid input: not a positive number
+                if (positiveNumber && result < 0)
+                {
+                    Console.WriteLine($"Invalid input! Not a positive number. ");
+                    positiveNumber = false;
+                }
+            }
+
+            return result;
         }
 
         static void Main(string[] args)
-
         {
-            var savingstransactions = new List<savingsaccount>();
-            var checkingtransactions = new List<checkingaccount>();
 
 
 
 
+            TextReader reader;
 
-            // checking.Add(firstdeposit);
-
-            //for (int i = 0; i < checking.Count; i++)
-            //{
-            //v
-            // Console.WriteLine($"Your checking account has {checking[i].checkingaccount} dollars in it");
-
-            //}
-
-
-
-
-
-            //var fileWriter = new StreamWriter("numbers.csv");
-            // ar csvWriter = new CsvWriter(fileWriter, CultureInfo.InvariantCulture)
-            // csvWriter.WriteRecords(numbers);
-            //  fileWriter.Close();
-            // 
-
-            //Identify expected input and output
-            //Make the requirements explicit
-            //Identify rules
-            //Mental model of the problem (optional)
-
-
-
-            //Problem: create a bank account that you can manage,
-            // load transactions from file on stgarup
-            // be able to see transactions on startup
-            // dont allow over drawing
-            //deposit to a checks and savings account. withdrawl
-            // from a checkings and savings account. be able
-            // to view account summary.
-            // prompt for amount to deposit or withdraw and make 
-            // sure it is a positive nuimber.
-            // write all transactions to a file. 
-
-            // 1. app should load past transactions on startup. 
-
-            // 2. view balances of savings and checking on startup.
-
-            // 3. do not allow over drawing. 
-
-            // 4. always ensure positive amount 
-
-            // 5. deposit into savings
-            //a. create a list (savings)
-
-            while (1 == 1)
+            if (File.Exists("Transactions.csv"))
             {
-
-                Console.Write("(v)iew accounts, (d)eposit, (w)ithdraw,");
-                string choice = Console.ReadLine();
-                if (choice == "v" || choice == "V")
-                {
-                    Console.Write($"would you like to see your (c)hecking, or (s)avings?,");
-                    string choices2 = Console.ReadLine();
-                    if (choices2 == "c" || choices2 == "C")
-                    {
-
-
-
-                        //checking.Add(firstdeposit);
-
-                        //foreach (var checkingDeposit in checking) Console.WriteLine(checkingDeposit);
-
-                        //var sum = checkingtransactions.Sum(checkingtransactions => checkingtransactions);
-                        var sum = checkingtransactions.Sum(checkingaccount => checkingaccount.checking);
-                        Console.WriteLine(sum);
-
-                        //var totalchecking = checking.Aggregate(0, (currentTotal, Accounts) => currentTotal + Accounts.totalchecking);
-                        //Console.WriteLine(totalchecking);
-                        //static int sum (this System.Collections.Generic.IEnumerable<Nullable<int>> source);
-
-                        //  float Sums = Accounts.Sum();
-
-                        // Console.WriteLine("Your checking account has  {0}", Sums);
-
-
-
-
-                    }
-
-                    if (choices2 == "s" || choices2 == "S")
-                    {
-                        //foreach (var savingsDeposit in checking) Console.WriteLine(savingsDeposit);
-                        // for (int i = 0; i < savings.Count; i++)
-                        //{
-                        //   Console.WriteLine(savings[i].savingsaccount);
-
-                        //}
-
-
-                        var sum = savingstransactions.Sum(savingsaccount => savingsaccount.savings);
-                        Console.WriteLine(sum);
-
-
-                    }
-
-
-
-                }
-                if (choice == "D" || choice == "d")
-                {
-                    Console.Write($"would you like to deposit into (c)hecking, or (s)avings?,");
-                    string choices = Console.ReadLine();
-                    if (choices == "c" || choices == "C")
-                    {
-                        Console.WriteLine($"How much would you like to deposit?");
-                        int newDepositchecking = Convert.ToInt32(Console.ReadLine());
-
-                        Console.WriteLine($"Thank you!");
-                        Console.WriteLine($"{newDepositchecking} Has been added to your checking account");
-                        checkingaccount checkingDeposit = new checkingaccount
-                        {
-                            checking = newDepositchecking,
-                        };
-                        checkingtransactions.Add(checkingDeposit);
-                    }
-                    if (choices == "s" || choices == "S")
-                    {
-                        Console.WriteLine($"How much would you like to deposit?");
-                        int newDepositsavings = Convert.ToInt32(Console.ReadLine());
-                        Console.WriteLine($"Thank you!");
-                        Console.WriteLine($"{newDepositsavings} Has been added to your savings account");
-                        savingsaccount savingsDeposit = new savingsaccount
-                        {
-                            savings = newDepositsavings,
-                        };
-                        savingstransactions.Add(savingsDeposit);
-
-                    }
-
-                }
-
-                if (choice == "W" || choice == "w")
-                {
-
-
-
-                    Console.Write("Would you like to withdraw from (c)hecking, or (s)avings?");
-                    string withdrawchoices = Console.ReadLine();
-
-                    if (withdrawchoices == "c" || withdrawchoices == "C")
-                    {
-                        Console.WriteLine($"How much would you like to withdraw?");
-                        int newWithdrawchecking = Convert.ToInt32(Console.ReadLine());
-                        Console.WriteLine($"Thank you!");
-                        Console.WriteLine($"{newWithdrawchecking} Has been removed from your checking account");
-                        checkingaccount checkingWithdraw = new checkingaccount
-                        {
-                            checking = newWithdrawchecking,
-                        };
-                        checkingtransactions.Re
-                        move(checkingWithdraw);
-                    }
-                    if (withdrawchoices == "s" || withdrawchoices == "S")
-                    {
-                        Console.WriteLine($"How much would you like to withdraw?");
-                        int newWithdrawsavings = Convert.ToInt32(Console.ReadLine());
-                        Console.WriteLine($"Thank you!");
-                        Console.WriteLine($"{newWithdrawsavings} Has been removed from your savings account");
-                        savingsaccount checkingWithdraw = new savingsaccount
-                        {
-                            savings = newWithdrawsavings,
-                        };
-                        savingstransactions.Remove(checkingWithdraw);
-                    }
-
-
-                }
+                reader = new StreamReader("Transactions.csv");
             }
-            //if (choice == "v" || choice == "V")
-            //{
-            //  Console.Write($"would you like to see your (c)hecking, or (s)avings?,");
-            //string viewchoices = Console.ReadLine();
-            //if (viewchoices == "c" || viewchoices == "C")
-            //{
-            // Console.WriteLine(checking);
+            else
+            {
+                reader = new StringReader("");
+            }
 
-            // (int i = 0; i < savings.Count; i++)
-            // {
-            //  Console.WriteLine($"{savings[i].savingsaccount}");
+            var csvReader = new CsvReader(reader, CultureInfo.InvariantCulture);
+            var transactions = csvReader.GetRecords<Transaction>().ToList();
 
-            //}
-            //}
-            //}
+            reader.Close();
+            var deposit = new Transaction()
+            {
+                Type = "Deposit",
+                Amount = 100.00m,
+                Account = "Checking",
+            };
+            var deposit2 = new Transaction()
+            {
+                Type = "Deposit",
+                Amount = 500m,
+                Account = "Saving",
+            };
+            var withdraw = new Transaction()
+            {
+                Type = "Withdraw",
+                Amount = 50m,
+                Account = "Checking",
+            };
+            var withdraw2 = new Transaction()
+            {
+                Type = "Withdraw",
+                Amount = 200m,
+                Account = "Saving",
+            };
+
+            transactions.Add(deposit);
+            transactions.Add(deposit2);
+            transactions.Add(withdraw);
+            transactions.Add(withdraw2);
+            bool usingMainMenu = true;
+            while (usingMainMenu)
+            {
+                Console.Write("(d)eposit, (w)ithdraw, (v)iew, e(x)it");
+                string userChoice = Console.ReadLine();
+                if (userChoice == "d")
+                {
+                    bool depositing = true;
+
+                    while (depositing)
+                    {
+                        Console.WriteLine("(c)hecking (s)avings e(x)it");
+                        string userAccountChoice = Console.ReadLine();
+                        if (userAccountChoice == "c")
+                        {
+                            var userDepositAmount = AskForAmount("How much would you like to deposit into your checking account?");
+                            var newDepositTransaction = new Transaction()
+                            {
+                                Type = "Deposit",
+                                Account = "Checking",
+                                Amount = userDepositAmount
+                            };
+
+                            transactions.Add(newDepositTransaction);
+
+                            Console.WriteLine($"Thank you! You have deposited ${userDepositAmount} to your Checking account.");
+                        }
+                        if (userAccountChoice == "s")
+                        {
+                            var userSavingsAmount = AskForAmount("How much would you like to deposit into your savings account?");
+                            var newSavingsTransaction = new Transaction()
+                            {
+                                Type = "Deposit",
+                                Account = "Savings",
+                                Amount = userSavingsAmount
+                            };
+
+                            transactions.Add(newSavingsTransaction);
+
+                            Console.WriteLine($"Thank you! You have deposited ${userSavingsAmount} to your Savings account.");
+
+                        }
+                        if (userAccountChoice == "x")
+                        {
+                            Console.WriteLine($"Entering Main Menu.");
+                            depositing = false;
+                        }
+
+
+                    }
+                }
+                if (userChoice == "w")
+                {
+                    bool withdrawing = true;
+
+                    while (withdrawing)
+                    {
+                        Console.WriteLine("Withdraw from (c)hecking (s)avings or e(x)it.");
+                        var userWithdrawAccountChoice = Console.ReadLine();
+
+                        if (userWithdrawAccountChoice == "c")
+                        {
+                            var checkingWithdrawAmount = AskForAmount($"How much do you want to withdraw from your checking account?");
+                            var newWithdrawTransaction = new Transaction()
+                            {
+                                Type = "Withdraw",
+                                Account = "Checking",
+                                Amount = checkingWithdrawAmount
+                            };
+
+                            transactions.Add(newWithdrawTransaction);
+
+                            Console.WriteLine("Thank you, {withdrawAmount} has been withdrawn from your checking account.");
+                        }
+
+                        if (userWithdrawAccountChoice == "s")
+                        {
+                            var savingsWithdrawAmount = AskForAmount($"How much do you want to withdraw from your savings account?");
+
+                            var newWithdrawTransaction = new Transaction()
+                            {
+                                Type = "Withdraw",
+                                Account = "Saving",
+                                Amount = savingsWithdrawAmount
+                            };
+
+                            transactions.Add(newWithdrawTransaction);
+
+                            Console.WriteLine($"Thankyou, {savingsWithdrawAmount} has been withdrawn from your savings account");
+                        }
+
+                        if (userWithdrawAccountChoice == "x")
+                        {
+                            Console.WriteLine("Back to main menu");
+                            withdrawing = false;
+                        }
+
+
+                    }
+                }
+                if (userChoice == "v")
+                {
+                    {
+                        var checkingBalance = TotalAccountBalance(transactions, "Checking", "Saving");
+                        var savingBalance = TotalAccountBalance(transactions, "Saving", "Checking");
+
+                        Console.WriteLine($"Your checking balance is : ${checkingBalance}");
+
+                        Console.WriteLine($" Your saving balance is: ${savingBalance}");
+
+                    }
+
+                    if (userChoice == "x")
+                    {
+                        Console.WriteLine("Thank you! Have a nice day! ");
+                        usingMainMenu = false;
+                    }
+                }
 
 
 
 
 
-            //if (choice == "V" || choice == "v")
-            //{
 
-            // Summary();
-
-            //}
-
+                var fileWriter = new StreamWriter("Transactions.csv");
+                var csvWriter = new CsvWriter(fileWriter, CultureInfo.InvariantCulture);
+                csvWriter.WriteRecords(transactions);
+                fileWriter.Close();
 
 
 
-
-
-            //b. add int one at a time to list(savings)
-
-
-
-
-            // 6. deposit into checking
-            // a. create a list (checking)
-
-
-            // b. add int one at a time to list (checking)
-
-            // 7. withdraw from savings 
-            // a. remove a specific element from list (savings)
-
-
-            // 8. withdraw from checkings. 
-            // a. remove a specific element from list (checking)
-
-
-            // 9. view account balances. 
-
-            // 10. after each transaction, write to a file using standard format.   
-
-
-            //break;
-
+            }
         }
     }
 }
-
 
 
